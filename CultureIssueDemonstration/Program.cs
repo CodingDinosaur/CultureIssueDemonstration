@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace CultureIssueDemonstration
 {
     internal class Program
     {
+        private const string ResourceFileName = "CultureIssueDemonstration.resources.dll";
+
+        private static readonly string HomePath = 
+            Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX
+            ? Environment.GetEnvironmentVariable("HOME")
+            : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
+
         internal static void Main(string[] args)
         {
             Console.WriteLine();
@@ -16,6 +24,10 @@ namespace CultureIssueDemonstration
             Console.WriteLine($@"Current platform is: {Environment.OSVersion.Platform.ToString()}");
             Console.WriteLine(@"Setting CurrentCulture to en-US...");
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
+            CheckCultureStuffForAll();
+            
+            ResourceFilePublishTests();
 
             CheckAvailableCultures();
 
@@ -40,7 +52,6 @@ namespace CultureIssueDemonstration
             Console.WriteLine($@"Current Culture: {CultureInfo.CurrentCulture.Name}");
             Console.WriteLine($@"Cultures found: {allCultures.Length}");
             Console.WriteLine($@"en-US: {enUSPresent} | fr-FR: {frFRPresent} | zh-TW: {zhTwPresent}");
-            Console.WriteLine();
         }
 
         private static void ShowResourceTestStringByCurrentCulture()
@@ -53,18 +64,52 @@ namespace CultureIssueDemonstration
         private static void GetStringByCultureTest()
         {
             Console.WriteLine();
-            Console.WriteLine($@"Testing resource lookup via default culture...");
+            Console.WriteLine($@"Testing resource lookup starting with default culture...");
             ShowResourceTestStringByCurrentCulture();
 
             Console.WriteLine();
-            Console.WriteLine($@"Attempting to set current culture to fr-FR...");
+            Console.WriteLine($@"Setting current culture to fr-FR...");
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
             ShowResourceTestStringByCurrentCulture();
 
             Console.WriteLine();
-            Console.WriteLine($@"Attempting to set current culture to zh-TW...");
+            Console.WriteLine($@"Setting current culture to zh-TW...");
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("zh-TW");
             ShowResourceTestStringByCurrentCulture();
+        }
+
+        private static void ResourceFilePublishTests()
+        {
+            CheckForResourceFile("fr-FR");
+            CheckForResourceFile("zh-TW");
+        }
+
+        private static void CheckForResourceFile(string localeName)
+        {
+            Console.WriteLine();
+            var relativePath = $"{localeName}/{ResourceFileName}";
+            Console.WriteLine($@"Checking for presence of localized resources for {localeName}...");
+            Console.WriteLine($@"Expected path is: {relativePath}");
+
+            var fileExists = File.Exists(relativePath);
+            Console.WriteLine($@"File {(fileExists ? "exists" : "DOES NOT exist")}!");
+        }
+
+        private static void CheckCultureStuffForAll()
+        {
+            Console.WriteLine();
+            Console.WriteLine(@"Checking culture data...");
+            CheckCultureStuff("en-US");
+            CheckCultureStuff("fr-FR");
+            CheckCultureStuff("zh-TW");
+        }
+
+        private static void CheckCultureStuff(string localeName)
+        {
+            Console.WriteLine($@"## Culture Data for {localeName}");
+            var culture = CultureInfo.GetCultureInfo(localeName);
+
+            Console.WriteLine($@"## Display Name: {culture.DisplayName} | Parent Name: {culture.Parent?.Name ?? "(Not Found)"}");
         }
     }
 }
