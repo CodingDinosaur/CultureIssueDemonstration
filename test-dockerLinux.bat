@@ -1,2 +1,2 @@
-docker build -t issueDemonstration:latest CultureIssueDemonstration
-docker run -it issueDemonstration:latest
+docker build -t issuedemonstration:latest CultureIssueDemonstration
+docker run -it issuedemonstration:latest

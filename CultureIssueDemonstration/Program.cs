@@ -8,8 +8,14 @@ namespace CultureIssueDemonstration
     {
         internal static void Main(string[] args)
         {
+            Console.WriteLine();
+            Console.WriteLine(@"==CultureIssueDemonstration==");
             Console.WriteLine(@"Test App for aliased cultures in .NET Core on linux");
             Console.WriteLine(@"This affects locales which are aliased in ICU, notably zh-TW and in-ID");
+
+            Console.WriteLine($@"Current platform is: {Environment.OSVersion.Platform.ToString()}");
+            Console.WriteLine(@"Setting CurrentCulture to en-US...");
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
             CheckAvailableCultures();
 
@@ -31,7 +37,7 @@ namespace CultureIssueDemonstration
             var zhTwPresent = allCultures.Any(c => c.Name == "zh-TW");
             // ReSharper restore InconsistentNaming
 
-            Console.WriteLine($@"Current Default Culture: {CultureInfo.CurrentCulture.Name}");
+            Console.WriteLine($@"Current Culture: {CultureInfo.CurrentCulture.Name}");
             Console.WriteLine($@"Cultures found: {allCultures.Length}");
             Console.WriteLine($@"en-US: {enUSPresent} | fr-FR: {frFRPresent} | zh-TW: {zhTwPresent}");
             Console.WriteLine();
