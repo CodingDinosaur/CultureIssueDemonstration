@@ -9,11 +9,6 @@ namespace CultureIssueDemonstration
     {
         private const string ResourceFileName = "CultureIssueDemonstration.resources.dll";
 
-        private static readonly string HomePath = 
-            Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX
-            ? Environment.GetEnvironmentVariable("HOME")
-            : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
-
         internal static void Main(string[] args)
         {
             Console.WriteLine();
@@ -25,7 +20,7 @@ namespace CultureIssueDemonstration
             Console.WriteLine(@"Setting CurrentCulture to en-US...");
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
-            CheckCultureStuffForAll();
+            CheckCultureDataForAll();
             
             ResourceFilePublishTests();
 
@@ -95,16 +90,16 @@ namespace CultureIssueDemonstration
             Console.WriteLine($@"File {(fileExists ? "exists" : "DOES NOT exist")}!");
         }
 
-        private static void CheckCultureStuffForAll()
+        private static void CheckCultureDataForAll()
         {
             Console.WriteLine();
             Console.WriteLine(@"Checking culture data...");
-            CheckCultureStuff("en-US");
-            CheckCultureStuff("fr-FR");
-            CheckCultureStuff("zh-TW");
+            CheckCultureData("en-US");
+            CheckCultureData("fr-FR");
+            CheckCultureData("zh-TW");
         }
 
-        private static void CheckCultureStuff(string localeName)
+        private static void CheckCultureData(string localeName)
         {
             Console.WriteLine($@"## Culture Data for {localeName}");
             var culture = CultureInfo.GetCultureInfo(localeName);
