@@ -2,22 +2,22 @@
 
 This repo is a sample for dotnet/coreclr issue here: (TBD)
 
-1. [Issue Description](#issue-description)
-1. [Issue Cause Summarized](#issue-cause-summarized)
-1. [Issue Symptoms](#issue-symptoms)
-    - [Resource files not published during *dotnet publish*](#resource-files-not-published-during-dotnet-publish)
-    - [Resource files not utilized even when present](#resource-files-not-utilized-even-when-present)
-    - [Culture data incorrect](#culture-data-incorrect)
-    - [Cultures missing from list of available cultures](#cultures-missing-from-list-of-available-cultures)
-1. [Apparent Root Cause](#apparent-root-cause)
-    - [Starting Point - Resource File Publishing](#starting-point---resource-file-publishing)
-    - [CultureInfo & The Culture List](#cultureinfo--the-culture-list)
-    - [ICU's Data Source](#icus-data-source)
-    - [ICU Locale Aliases](#icu-locale-aliases)
-      - [ICU Locale Alias List](#icu-locale-alias-list)
-1. [Partial Failure of GetCultureInfo](#partial-failure-of-getcultureinfo)
-1. [Running the Test Application](#running-the-test-application)
-    - [What to look for](#what-to-look-for)
+- [Issue Description](#issue-description)
+- [Issue Cause Summarized](#issue-cause-summarized)
+- [Issue Symptoms](#issue-symptoms)
+  - [Resource files not published during *dotnet publish*](#resource-files-not-published-during-dotnet-publish)
+  - [Cultures missing from list of available cultures](#cultures-missing-from-list-of-available-cultures)
+  - [Resource files not utilized even when present](#resource-files-not-utilized-even-when-present)
+  - [Some CultureInfo data platform inconsistent](#some-cultureinfo-data-platform-inconsistent)
+- [Apparent Root Cause](#apparent-root-cause)
+  - [Starting Point - Resource File Publishing](#starting-point---resource-file-publishing)
+  - [CultureInfo & The Culture List](#cultureinfo--the-culture-list)
+  - [ICU's Data Source](#icus-data-source)
+  - [ICU Locale Aliases](#icu-locale-aliases)
+    - [ICU Locale Alias List](#icu-locale-alias-list)
+- [Possible Failure of GetCultureInfo](#possible-failure-of-getcultureinfo)
+- [Running the Test Application](#running-the-test-application)
+  - [What to look for](#what-to-look-for)
 
 # Issue Description
 Certain valid locales cannot be used for localization in .NET Core on Unix-based environments, because they are not recognized by CultureInfo and its surrounding classes.  Although not the only affected locale, this is most easily reproduced with zh-TW (Chinese, Taiwan).
@@ -45,17 +45,29 @@ This involves a .NET Core 2.1 project which uses localized resource (.resx) file
 
 When building on Windows, this functions correctly.  However, when running *dotnet publish* on a Linux environment, the *zh-TW* folder will be missing.
 
-## Resource files not utilized even when present
-Our first attempt at a quick fix involved a workaround to our *.csproj* file to force the zh-TW resources file to be copied into the appropriate folder during a publish.  This ultimately didn't solve anything, however, because while this worked when tested in Windows, when the app was running under Linux, and a string was requested with Culture *zh-TW*, the english strings were returned.
-
-## Culture data incorrect
-When trying to get a CultureInfo object for *zh-TW*, an object with invalid data is returned.  Most notably, the display name and parent culture are both incorrect.  It appears that much of the CultureInfo data is in a "default" state for an unknown / custom locale, whereas certain other properties such as the ASCIICodePage give correct information.
-
 ## Cultures missing from list of available cultures
 The affected cultures are completely missing from the list of available cultures, obtained when calling:
 ```csharp
 var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
 ```
+
+## Resource files not utilized even when present
+Our first attempt at a quick fix involved a workaround to our *.csproj* file to force the zh-TW resources file to be copied into the appropriate folder during a publish.  This ultimately didn't solve anything, however, because while this worked when tested in Windows, when the app was running under Linux, and a string was requested with Culture *zh-TW*, the english strings were returned.
+
+This workaround can be seen in action in the test app for *zh-CN* specifically:
+```xml
+<Target Name="AssignCustomCultures" AfterTargets="SplitResourcesByCulture" Condition="'$(EnableAssignCustomCultures)' != ''">
+  <ItemGroup>
+    <EmbeddedResource Condition="$([System.IO.Path]::HasExtension(%(Filename))) AND $([System.IO.Path]::GetExtension(%(Filename)).TrimStart('.')) == '$(EnableAssignCustomCultures)'">
+      <Culture>$([System.IO.Path]::GetExtension(%(Filename)).TrimStart('.'))</Culture>
+      <WithCulture>true</WithCulture>
+    </EmbeddedResource>
+  </ItemGroup>
+</Target>
+```
+
+## Some CultureInfo data platform inconsistent
+When trying to get a CultureInfo object for *zh-TW*, the object returned has some values which are notably different on Linux versus Windows.  Most notably, the parent locale which is expected to be zh-Hant, and is defined as such in ICU (zh-TW alias to zh-Hant-TW child of zh-Hant), but is not the parent culture returned when running under Linux.
 
 # Apparent Root Cause
 After a great deal of investigation, I have narrowed down what I believe to be the root cause.
@@ -149,7 +161,7 @@ This is when the stack enters the C API for the [ICU - the International Compone
 The *uloc_countAvailable* and *uloc_getAvailable* calls are part of the ICU C API.  (Mostly functionally equivalent calls exist in the C++ API in the Locale class, however in my testing the exhibit the same behavior as the C API calls.)
 
 We can directly test that ICU isn't returning zh-TW in both the C API method used above and the C++ API, as I have done in this repo:
-https://ghosthub.corp.blizzard.net/gsamuelian/CultureIcuTest
+(TBD)
 
 To better understand why ICU isn't returning zh_TW and some other locales, we need to better understand how ICU's data works.
 
@@ -214,17 +226,14 @@ zh_Hant_HK|zh_HK
 zh_Hant_MO|zh_MO
 zh_Hant_TW|zh_TW
 
-# Partial Failure of GetCultureInfo
-When one of the affected Cultures is obtained using `CultureInfo.GetCultureInfo`, the resulting `CultureInfo` object contains a mixture of expected and unexpected data.  For example, the culture name and display name are incorrect, but the ANSICodePage is correct.
-
-I'm not certain why this is the case, but I believe it is because `CultureInfo` objects contain a complex weave of data, not all of which is fetched up front, and some of which may only 
-
+# Possible Failure of GetCultureInfo
+When one of the affected Cultures is obtained using `CultureInfo.GetCultureInfo`, the resulting `CultureInfo` object contains a mixture of expected and unexpected data.  For example, the ANSICodePage is correct, but the parent locale is not.
 
 When calling GetCultureInfo, the code path ultimately leads to native calls to get the specific locale here:
 [System.Globalization.Native/locale.cpp:GlobalizationNative_GetLocaleName](https://github.com/dotnet/coreclr/blob/master/src/corefx/System.Globalization.Native/locale.cpp#L201-L219) ->
 [System.Globalization.Native/locale.cpp:GlobalizationNative_GetLocale](https://github.com/dotnet/coreclr/blob/master/src/corefx/System.Globalization.Native/locale.cpp#L31-L83)
 
-Unlike the previous example of getting all locales, ICU appears to return correct data for zh-TW, as can be see in the ICU test app.  However, it is likely that some of the numerous properties initializers, and constructors for CultureInfo and its child objects utilize or otherwise depend on the data previously obtained via `CultureData.EnumCultures`.
+Unlike the previous example of getting all locales, ICU appears to return correct data for zh-TW, as can be see in the [ICU test app](TBD).  However, it is possible that some of the numerous properties initializers, and constructors for CultureInfo and its child objects utilize or otherwise depend on the data previously obtained via `CultureData.EnumCultures`.
 
 (Among other places, the `CultureInfoConverter` in `System.ComponentModel` depends on the full culture list.)
 
@@ -238,12 +247,12 @@ There are two test scripts, with both .sh and .bat versions of both.
 - **To test in Linux via Docker** run *test-dockerLinux.bat*
   - The docker image is based on the .NET SDK docker image.
 
-My recommendation is that you run both tests from Windows.  This will give you the opportunity to see the differences in the results under either platform.
+My recommendation is that you run both tests from Windows using Docker for Windows, as this will give you the opportunity to see the differences in the results under either platform.
 
 ## What to look for
 
-When running the test, take note of the following for zh-TW, which function correctly under Windows but not under Linux:
-- Because it is an unknown culture when running under Linux, the zh-TW culture data incorrect, showing an incorrect display name and no parent.
-- The zh-TW resource file is missing, because it wasn't published during the *dotnet publish*
-- When checking all available cultures with *CultureInfo.GetCultures*, zh-TW is missing.
-- Attempting to get a localized string from a resource file in zh-TW fails and the default string is obtained instead.  This is partly because the resource file is missing, but even if copied manually, the file is ignored since zh-TW is not a "valid" culture while running dotnet under Linux.
+When running the test, take note of the following, which function correctly under Windows but not under Linux:
+- When checking all available cultures with *CultureInfo.GetCultures*, zh-TW and zh-CN are both missing on Linux.
+- The zh-TW resource file is missing, because it wasn't published during the *dotnet publish*.
+- The zh-CN resource file would be missing too, but it was copied over via a custom build step.
+- Even though the zh-CN resource file is present, on Linux zh-CN strings fail to be retrieved (falling back on the default).
