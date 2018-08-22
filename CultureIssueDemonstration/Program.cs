@@ -20,16 +20,14 @@ namespace CultureIssueDemonstration
             Console.WriteLine(@"Setting CurrentCulture to en-US...");
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
-            CheckCultureDataForAll();
-            
             ResourceFilePublishTests();
 
             CheckAvailableCultures();
 
             GetStringByCultureTest();
 
-            Console.WriteLine(@"Complete! (Press any key to exit)");
-            Console.ReadKey();
+            Console.WriteLine(@"Complete! (Press enter to exit)");
+            Console.Read();
         }
 
         private static void CheckAvailableCultures()
@@ -88,23 +86,6 @@ namespace CultureIssueDemonstration
 
             var fileExists = File.Exists(relativePath);
             Console.WriteLine($@"File {(fileExists ? "exists" : "DOES NOT exist")}!");
-        }
-
-        private static void CheckCultureDataForAll()
-        {
-            Console.WriteLine();
-            Console.WriteLine(@"Checking culture data...");
-            CheckCultureData("en-US");
-            CheckCultureData("fr-FR");
-            CheckCultureData("zh-TW");
-        }
-
-        private static void CheckCultureData(string localeName)
-        {
-            Console.WriteLine($@"## Culture Data for {localeName}");
-            var culture = CultureInfo.GetCultureInfo(localeName);
-
-            Console.WriteLine($@"## Display Name: {culture.DisplayName} | Parent Name: {culture.Parent?.Name ?? "(Not Found)"}");
         }
     }
 }
