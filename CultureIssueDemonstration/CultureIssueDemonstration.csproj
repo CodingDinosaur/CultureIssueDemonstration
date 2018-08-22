@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <EnableAssignCustomCultures Condition="'$(EnableAssignCustomCultures)' == ''"></EnableAssignCustomCultures>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +20,14 @@
       <LastGenOutput>MyStrings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="AssignCustomCultures" AfterTargets="SplitResourcesByCulture" Condition="'$(EnableAssignCustomCultures)' != ''">
+    <ItemGroup>
+      <EmbeddedResource Condition="$([System.IO.Path]::HasExtension(%(Filename))) AND $([System.IO.Path]::GetExtension(%(Filename)).TrimStart('.')) == '$(EnableAssignCustomCultures)'">
+        <Culture>$([System.IO.Path]::GetExtension(%(Filename)).TrimStart('.'))</Culture>
+        <WithCulture>true</WithCulture>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
 
 </Project>

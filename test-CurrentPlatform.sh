@@ -1,2 +1,4 @@
 dotnet publish CultureIssueDemonstration --output ../app
-dotnet ./app/CultureIssueDemonstration.dll
+cd app
+dotnet CultureIssueDemonstration.dll
+cd ..
