@@ -174,45 +174,45 @@ https://unicode-org.atlassian.net/browse/ICU-4309
 **That this bug was fixed is a further and very strong indication that ICU not returning locale aliases is intentional.**
 
 ### ICU Locale Alias List
+These are all the locales that have aliases for the purposes of locale identification.  Other data types in ICU (such as collation and rule-based number formatting) have additional aliases.
 
-The following locale aliases exist in ICU:
 |Locale|Aliases|
-|---|---|
-|ar_SA|ars|
-|az_Latn_AZ|az_AZ|
-|bs_Latn_BA|bs_BA|
-|en_VU|en_NH|
-|en_ZW|en_RH|
-|fil|tl|
-|fil_PH|tl_PH|
-|he|iw|
-|he_IL|iw_IL|
-|id|in|
-|id_ID|in_ID|
-|nb|no|
-|nb_NO|no_NO|
-|nn_NO|no_NO_NY|
-|pa_Arab_PK|pa_PK|
-|pa_Guru_IN|pa_IN|
-|ro_MD|mo|
-|shi_Tfng_MA|shi_MA|
-|sr_Cyrl_BA|sr_BA|
-|sr_Cyrl_RS|sr_CS, sr_Cyrl_CS, sr_Cyrl_YU, sr_RS, sr_YU|
-|sr_Cyrl_XK|sr_XK|
-|sr_Latn|sh|
-|sr_Latn_BA|sh_BA|
-|sr_Latn_ME|sr_ME|
-|sr_Latn_RS|sh_CS, sh_YU, sr_Latn_CS, sr_Latn_YU|
-|uz_Arab_AF|uz_AF|
-|uz_Latn_UZ|uz_UZ|
-|vai_Vaii_LR|vai_LR|
-|yue_Hans_CN|yue_CN|
-|yue_Hant_HK|yue_HK|
-|zh_Hans_CN|zh_CN|
-|zh_Hans_SG|zh_SG|
-|zh_Hant_HK|zh_HK|
-|zh_Hant_MO|zh_MO|
-|zh_Hant_TW|zh_TW|
+---|---
+ar_SA|ars
+az_Latn_AZ|az_AZ
+bs_Latn_BA|bs_BA
+en_VU|en_NH
+en_ZW|en_RH
+fil|tl
+fil_PH|tl_PH
+he|iw
+he_IL|iw_IL
+id|in
+id_ID|in_ID
+nb|no
+nb_NO|no_NO
+nn_NO|no_NO_NY
+pa_Arab_PK|pa_PK
+pa_Guru_IN|pa_IN
+ro_MD|mo
+shi_Tfng_MA|shi_MA
+sr_Cyrl_BA|sr_BA
+sr_Cyrl_RS|sr_CS, sr_Cyrl_CS, sr_Cyrl_YU, sr_RS, sr_YU
+sr_Cyrl_XK|sr_XK
+sr_Latn|sh
+sr_Latn_BA|sh_BA
+sr_Latn_ME|sr_ME
+sr_Latn_RS|sh_CS, sh_YU, sr_Latn_CS, sr_Latn_YU
+uz_Arab_AF|uz_AF
+uz_Latn_UZ|uz_UZ
+vai_Vaii_LR|vai_LR
+yue_Hans_CN|yue_CN
+yue_Hant_HK|yue_HK
+zh_Hans_CN|zh_CN
+zh_Hans_SG|zh_SG
+zh_Hant_HK|zh_HK
+zh_Hant_MO|zh_MO
+zh_Hant_TW|zh_TW
 
 # Partial Failure of GetCultureInfo
 When one of the affected Cultures is obtained using `CultureInfo.GetCultureInfo`, the resulting `CultureInfo` object contains a mixture of expected and unexpected data.  For example, the culture name and display name are incorrect, but the ANSICodePage is correct.
