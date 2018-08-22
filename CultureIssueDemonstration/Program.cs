@@ -29,10 +29,16 @@ namespace CultureIssueDemonstration
              *     2.3 - zh-TW, an ICU aliased culture.  Works on Windows only.  On Linux, the file has failed to publish and does not exist.
              *     2.4 - zh-CN, an ICU aliased culture in which we have forcibly copied over the resource file using a custom build step.
              *           On Linux, the localized string lookup still fails (and falls back to default) despite the presence of the file. */
-         ResourceFilePublishTests();
+            ResourceFilePublishTests();
             ResourceFilePublishTests("fr-FR");
             ResourceFilePublishTests("zh-TW");
             ResourceFilePublishTests("zh-CN");
+
+            Console.WriteLine();
+            CheckParentCulture("en-US");
+            CheckParentCulture("fr-FR");
+            CheckParentCulture("zh-TW");
+            CheckParentCulture("zh-CN");
 
             Console.WriteLine(@"Complete! (Press enter to exit)");
             Console.Read();
@@ -56,6 +62,12 @@ namespace CultureIssueDemonstration
             Console.WriteLine($@"Current Culture: {CultureInfo.CurrentCulture.Name}");
             Console.WriteLine($@"Cultures found: {allCultures.Length}");
             Console.WriteLine($@"en-US: {enUSPresent} | fr-FR: {frFRPresent} | zh-TW: {zhTWPresent} | zh-CN: {zhCNPresent}");
+        }
+
+        private static void CheckParentCulture(string locale)
+        {
+            var ci = CultureInfo.GetCultureInfo(locale);
+            Console.WriteLine($@"Culture {ci.Name} | Display Name: {ci.DisplayName} | Parent Culture Name: {ci.Parent.Name}");
         }
 
         private static void GetStringByCultureTest(string locale = null)
