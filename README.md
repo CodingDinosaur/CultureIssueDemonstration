@@ -169,11 +169,13 @@ ICU's data comes from the [CLDR - Unicode Common Locale Data Repository](http://
 
 >**What is the relationship between ICU locale data and system locale data?**<br/>There is no relationship. ICU is not dependent on the operating system for the locale data.<br/>This also means that uloc_setDefault() does not affect the operating system. The function uloc_setDefault() only sets ICU's default locale. Normally the default locale for ICU is whatever the operating system says is the default locale.
 
-For that reason, ICU includes all of its own data from CLDR.  However, database size has been an ongoing concern, and some locales which shared the same collation data but didn't have a parent / child relationship meant that said collation data would be duplicated.  To de-duplicate this data, ICU added the concept of locale "aliases".  [From ICU's documentation on ICU resource bundles](http://userguide.icu-project.org/locale/localizing#TOC-.txt-resource-bundles):
-
->A value can also be an "alias", which is simply a reference to another bundle's item. This is to save space by storing large data pieces only once when they cannot be inherited along the locale ID hierarchy (e.g., collation data in ICU shared among zh_HK and zh_TW).
+For that reason, ICU includes all of its own data from CLDR.
 
 ## ICU Locale Aliases
+CLDR database size has been an ongoing concern for ICU, and some locales which share the same data but don't have a parent / child relationship would require data duplication (or otherwise require logic more complex than was desired).  To de-duplicate this data, ICU added the concept of locale "aliases".  [From ICU's documentation on ICU resource bundles](http://userguide.icu-project.org/locale/localizing#TOC-.txt-resource-bundles):
+
+>A value can also be an "alias", which is simply a reference to another bundle's item. This is to save space by storing large data pieces only once when they cannot be inherited along the locale ID hierarchy (e.g., data in ICU shared among zh_HK and zh_TW).
+
 When a locale name is defined as an alias in ICU, then from the standpoint of ICU it isn't a first-class locale -- merely a pointer to a "real" locale when requested.  As a result, **ICU does not return aliases when getting a list of locales** -- whether with `uloc_getAvailable` or `Locale::getAvailableLocales` (and `uloc_countAvailable` does not include them in its count).
 
 That ICU does not return the aliases in this manner **appears to be intentional**, both based on the numerous references to [a lack of alias mapping in the uloc documentation](http://www.icu-project.org/apiref/icu4c/uloc_8h.html), and the following bug:  
