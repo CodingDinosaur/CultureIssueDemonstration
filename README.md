@@ -1,6 +1,6 @@
 # Demonstration of Issues with ICU Aliased Cultures in .NET Core on Linux
 
-This repo is a sample for dotnet/coreclr issue here: (TBD)
+This repo is a sample for dotnet/coreclr issue here: (https://github.com/dotnet/coreclr/issues/20388)
 
 - [Issue Description](#issue-description)
 - [Issue Cause Summarized](#issue-cause-summarized)
@@ -161,7 +161,7 @@ This is when the stack enters the C API for the [ICU - the International Compone
 The *uloc_countAvailable* and *uloc_getAvailable* calls are part of the ICU C API.  (Mostly functionally equivalent calls exist in the C++ API in the Locale class, however in my testing the exhibit the same behavior as the C API calls.)
 
 We can directly test that ICU isn't returning zh-TW in both the C API method used above and the C++ API, as I have done in this repo:
-(TBD)
+[CodingDinosaur/CultureIcuTest](https://github.com/CodingDinosaur/CultureIcuTest)
 
 To better understand why ICU isn't returning zh_TW and some other locales, we need to better understand how ICU's data works.
 
@@ -235,7 +235,7 @@ When calling GetCultureInfo, the code path ultimately leads to native calls to g
 [System.Globalization.Native/locale.cpp:GlobalizationNative_GetLocaleName](https://github.com/dotnet/coreclr/blob/master/src/corefx/System.Globalization.Native/locale.cpp#L201-L219) ->
 [System.Globalization.Native/locale.cpp:GlobalizationNative_GetLocale](https://github.com/dotnet/coreclr/blob/master/src/corefx/System.Globalization.Native/locale.cpp#L31-L83)
 
-Unlike the previous example of getting all locales, ICU appears to return correct data for zh-TW, as can be see in the [ICU test app](TBD).  However, it is possible that some of the numerous properties initializers, and constructors for CultureInfo and its child objects utilize or otherwise depend on the data previously obtained via `CultureData.EnumCultures`.
+Unlike the previous example of getting all locales, ICU appears to return correct data for zh-TW, as can be see in the [ICU test app](https://github.com/CodingDinosaur/CultureIcuTest).  However, it is possible that some of the numerous properties initializers, and constructors for CultureInfo and its child objects utilize or otherwise depend on the data previously obtained via `CultureData.EnumCultures`.
 
 (Among other places, the `CultureInfoConverter` in `System.ComponentModel` depends on the full culture list.)
 
