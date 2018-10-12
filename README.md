@@ -1,6 +1,6 @@
 # Demonstration of Issues with ICU Aliased Cultures in .NET Core on Linux
 
-This repo is a sample for dotnet/coreclr issue here: (https://github.com/dotnet/coreclr/issues/20388)
+This repo is a sample for dotnet/coreclr issue here: https://github.com/dotnet/coreclr/issues/20388
 
 - [Issue Description](#issue-description)
 - [Issue Cause Summarized](#issue-cause-summarized)
